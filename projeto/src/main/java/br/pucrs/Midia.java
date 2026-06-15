@@ -1,3 +1,4 @@
+package br.pucrs;
 public abstract class Midia{
     private String titulo;
     private int anoLancamento;

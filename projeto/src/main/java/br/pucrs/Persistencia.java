@@ -1,3 +1,4 @@
+package br.pucrs;
 public interface Persistencia {
     //interface feita apenas para declara os dois metodos que serão implementados 
     

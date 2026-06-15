@@ -1,11 +1,14 @@
+package br.pucrs;
 import java.util.ArrayList;
 
 public class RepositorioFilmes{
 
-    ArrayList<Filme> listaFilmes = new ArrayList<>();
+    private ArrayList<Filme> listaFilmes = new ArrayList<>();
 
     public void adicionarFilmes(Filme novoFilme){
         listaFilmes.add(novoFilme);
+
+        
     }
 
     public boolean removerFilmes(Filme filmeRemovido){
