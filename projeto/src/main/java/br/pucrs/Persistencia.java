@@ -1,8 +1,18 @@
 package br.pucrs;
+import java.util.ArrayList;
 public interface Persistencia {
-    //interface feita apenas para declara os dois metodos que serão implementados 
-    
-    public Filme[] salvarFilmes();
 
-    public void carregar(Filme[] listaFilmes);
+    
+    public void adicionarFilmes(Filme novoFilme);
+
+    public boolean removerFilmes(Filme filmeRemovido);
+
+    public ArrayList<Filme> listarTodosFilmes();
+
+    public Filme buscarTitulo(String tituloFilme);
+
+    public int quantidadeFilmesCadastrados();
+
+    public void limparLista();
+
 }

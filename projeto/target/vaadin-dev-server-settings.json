@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/./frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/./frontend/generated/jar-resources",
+  "staticOutput": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/target/classes/META-INF/VAADIN/config",
+  "frontendBundleOutput": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/target/classes/META-INF/VAADIN/webapp",
+  "devBundleOutput": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/target/dev-bundle/webapp",
+  "devBundleStatsOutput": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/target/dev-bundle/config",
+  "jarResourcesFolder": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/./frontend/generated/jar-resources",
+  "themeName": "",
+  "clientServiceWorkerSource": "/workspaces/TrabalhoFinal_PIPOCA-E-GUARANA/projeto/target/sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}
