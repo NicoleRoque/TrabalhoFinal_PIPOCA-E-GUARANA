@@ -6,6 +6,16 @@ public class RepositorioFilmes implements Persistencia{
 
     private ArrayList<Filme> listaFilmes = new ArrayList<>();
 
+    //Variavel que pertence a classe, ou seja, não será instaciada e iniciamente seu valor é null
+    private static RepositorioFilmes instance;
+
+    //metodo para garantir que exista apenas uma lista de filmes unica, evitando assim que os dados se percam em varias listas 
+    public static RepositorioFilmes getInstance() { //metodo estatico, pode ser chamado sem criar um objeto
+        if (instance == null)  //se instance for igual a null(o que ela é)
+            instance = new RepositorioFilmes(); //Cria o único objeto da classe e o guarda na variavel instance
+        return instance; //retorna a varivavel
+    }
+
     public void adicionarFilmes(Filme novoFilme){
         listaFilmes.add(novoFilme);
 
