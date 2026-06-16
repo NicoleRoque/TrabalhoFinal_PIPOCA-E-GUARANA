@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
-@Route("Pipoca e guarana")
+@Route("home")
 public class MainView extends VerticalLayout {
     public MainView() {
         Button sayHelloButton = new Button("Say hello");

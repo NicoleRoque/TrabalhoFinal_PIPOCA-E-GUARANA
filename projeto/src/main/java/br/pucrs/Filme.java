@@ -14,7 +14,7 @@ public class Filme extends Midia {
         this.genero = genero;
         this.duracao = duracao;
         this.nota = nota;
-        this.ID = proximoID;
+        this.ID = proximoID++;
     }
 
     public int getID(){
