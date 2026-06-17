@@ -13,6 +13,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout; //importa a classe vertical
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle; //importa o titulo
@@ -20,6 +21,7 @@ import com.vaadin.flow.router.Route; //importa o sub titulo
 import com.vaadin.flow.component.grid.Grid; //importa a tabela 
 import com.vaadin.flow.component.notification.Notification;//importa a notificação
 import com.vaadin.flow.component.Key; //importa o atalho para salvar
+import java.util.List;
 
 @PageTitle("Tela de cadastro de filmes")//titulo da pagina
 @Route("cadastro") //sub titulo
@@ -37,6 +39,18 @@ public class TelaCadastroFilmes extends VerticalLayout { //declaração da class
     // Botoes
     private final Button salvarButton; //botão de salvar
     private final Button cancelarButton; //botão de cancelar
+    private final Button novoButton; //botão para iniciar um cadastro novo
+
+    // Campos de filtro da grid (filtra por gênero, ano mínimo e nota mínima).
+    // Ficam como atributos da classe pois são usados em aplicarFiltros() e limparFiltros(), métodos fora do construtor.
+    private final ComboBox<String> filtroGenero;
+    private final NumberField filtroAnoMinimo;
+    private final NumberField filtroNotaMinima;
+    private final Button aplicarFiltroButton;// aplica o filtro
+    private final Button limparFiltroButton;// limpa o filtro
+
+
+
     // Grid para exibir os filmes(tabela)
     private final Grid<Filme> grid;
     // Referencia para o filme selecionado
@@ -71,22 +85,49 @@ public class TelaCadastroFilmes extends VerticalLayout { //declaração da class
         salvarButton = new Button("Atualizar", VaadinIcon.CHECK.create());
         salvarButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         salvarButton.addClickShortcut(Key.ENTER); //Cria um atalho de teclado para o botão. Quando o usuário pressionar Enter, será como se tivesse clicado em Salvar.
-        salvarButton.addClickListener(click -> this.atualizarFormulario()); //clicou, atualizou o formulario
+        salvarButton.addClickListener(click -> this.salvarFormulario()); //clicou, decide se cria ou atualiza
 
         cancelarButton = new Button("Cancelar");
         Dialog dialogoCancelamento = criaDialogoDeCancelamento();
         cancelarButton.addClickListener(click -> dialogoCancelamento.open());
 
-        // Adiciona botoes de ação em um layout horizontal
-        HorizontalLayout botoesLayout = new HorizontalLayout(salvarButton, cancelarButton);
+        // Botão "Novo Filme": limpa o formulário, tira a seleção da grid e habilita os campos (incluindo o título) para um cadastro novo
+        novoButton = new Button("Novo Filme", VaadinIcon.PLUS.create());
+        novoButton.addClickListener(click -> iniciarCadastroNovo());
 
+
+        // Adiciona botoes de ação em um layout horizontal
+        HorizontalLayout botoesLayout = new HorizontalLayout(novoButton, salvarButton, cancelarButton);
+
+          // Filtros da grid
+        filtroGenero = new ComboBox<>("Filtrar por gênero");
+        filtroGenero.setItems("Romance", "Terror", "Suspense", "Comédia", "Ação", "Drama");
+        filtroGenero.setClearButtonVisible(true);
+
+        filtroAnoMinimo = new NumberField("Lançados a partir do ano");
+        filtroAnoMinimo.setClearButtonVisible(true);
+
+        filtroNotaMinima = new NumberField("Nota mínima");
+        filtroNotaMinima.setClearButtonVisible(true);
+
+        FormLayout filtrosLayout = new FormLayout(filtroGenero, filtroAnoMinimo, filtroNotaMinima);
+
+        aplicarFiltroButton = new Button("Filtrar");
+        aplicarFiltroButton.addClickListener(e -> aplicarFiltros());
+
+        limparFiltroButton = new Button("Limpar filtros");
+        limparFiltroButton.addClickListener(e -> limparFiltros());
+
+        HorizontalLayout botoesFiltro = new HorizontalLayout(aplicarFiltroButton, limparFiltroButton);
+
+    
         // Configuração do Grid
         grid.setItems(cadFilmes.listarTodosFilmes());
         grid.setColumns("titulo", "genero",  "duracao",  "nota",  "anoLancamento"); //colunas que fazem parte da estrutura
         grid.asSingleSelect().addValueChangeListener(event -> preparaEdicaoPessoa(event));
 
         // Monta todos os elementos na janela
-        add(formLayout, botoesLayout, new H2("Filmes Cadastrados"), grid);
+        add(formLayout, botoesLayout, new H2("Filmes Cadastrados"), filtrosLayout, botoesFiltro, grid);
         add(new Hr());
 
         // Define o botão de retorno à página principal
@@ -94,32 +135,61 @@ public class TelaCadastroFilmes extends VerticalLayout { //declaração da class
         backButton.addClickListener(e -> UI.getCurrent().navigate(""));//botão de voltar
         add(backButton);
 
+        // Define o botão de ir para a tela de relatório
+        Button relatorioButton = new Button("Ver Relatório / Estatísticas");
+        relatorioButton.addClickListener(e -> UI.getCurrent().navigate("relatorio"));
+        add(relatorioButton);
+        
         // deixa formulário desabilitado no início
         habilitarFormulario(false);
 
     }
 
-    
-    // Atualiza o filme selecionado
-    private void atualizarFormulario() {
+    // Decide se deve criar um filme novo ou atualizar o filme selecionado
+    private void salvarFormulario() {
+        // Validação simples para evitar NumberFormatException se os campos estiverem vazios
+        // (ex: usuário clicou em "Novo Filme" e tentou salvar sem preencher nada)
+        if (titulo.isEmpty() || duracao.isEmpty() || nota.isEmpty() || anoLancamento.isEmpty() || genero.isEmpty()) {
+            Notification.show("Preencha todos os campos antes de salvar.", 3000, Notification.Position.BOTTOM_STRETCH);
+            return;
+        }
+
         Filme f = new Filme( //instanciamos um objeto filme e acessamos os valores dele
                 genero.getValue(),
                 Integer.parseInt(duracao.getValue()),
                 Double.parseDouble(nota.getValue()),
                 titulo.getValue(),
                 Integer.parseInt(anoLancamento.getValue())
-
         );
-        
 
-        cadFilmes.update(filmeselecionado.getID(), f);
+        String mensagem;
 
-        String mensagem = "Filme " + f.getTitulo() + " atualizado com sucesso!";
+        if (filmeselecionado == null) {
+            // Não há filme selecionado na grid -> estamos criando um filme novo
+            cadFilmes.adicionarFilmes(f);
+            mensagem = "Filme " + f.getTitulo() + " cadastrado com sucesso!";
+        } else {
+            // Há um filme selecionado -> estamos atualizando
+            cadFilmes.update(filmeselecionado.getID(), f);
+            mensagem = "Filme " + f.getTitulo() + " atualizado com sucesso!";
+        }
+
         Notification.show(mensagem, 3000, Notification.Position.BOTTOM_STRETCH);
 
         grid.getDataProvider().refreshAll();
         limparFormulario();
         habilitarFormulario(false); // Desabilita o form após salvar
+    }
+
+    // Prepara a tela para receber um cadastro novo
+    private void iniciarCadastroNovo() {
+        grid.asSingleSelect().clear(); // garante que nenhum filme fique selecionado
+        filmeselecionado = null;
+        limparFormulario();
+        habilitarFormulario(true);
+        titulo.setReadOnly(false); // no cadastro novo o título precisa ser digitável
+        salvarButton.setText("Cadastrar");
+        titulo.focus();
     }
 
     // Preenche o formulário a partir do grid
@@ -182,4 +252,22 @@ public class TelaCadastroFilmes extends VerticalLayout { //declaração da class
         dialogo.getFooter().add(fecharDialogo, confirmarCancelamento);
         return dialogo;
     }
+    
+    // Filtros da grid (usam o RepositorioFilmes, que usa streams)
+    private void aplicarFiltros() {
+        String generoFiltro = filtroGenero.getValue();
+        Integer ano = filtroAnoMinimo.getValue() != null ? filtroAnoMinimo.getValue().intValue() : null;
+        Double notaMin = filtroNotaMinima.getValue();
+
+        List<Filme> resultado = cadFilmes.filtrar(generoFiltro, ano, notaMin);
+        grid.setItems(resultado);
+    }
+
+    private void limparFiltros() {
+        filtroGenero.clear();
+        filtroAnoMinimo.clear();
+        filtroNotaMinima.clear();
+        grid.setItems(cadFilmes.listarTodosFilmes());
+    }
 }
+

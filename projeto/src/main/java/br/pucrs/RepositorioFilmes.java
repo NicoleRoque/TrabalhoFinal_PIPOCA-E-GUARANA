@@ -2,6 +2,12 @@
 package br.pucrs;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+
 public class RepositorioFilmes implements Persistencia{
 
     private ArrayList<Filme> listaFilmes = new ArrayList<>();
@@ -49,7 +55,7 @@ public class RepositorioFilmes implements Persistencia{
         //percorre toda lista e verifica se existe o titulo que estou procurando
         for (Filme filmeDaLista : listaFilmes) {
 
-        if (filmeDaLista.getTitulo() == tituloFilme) {
+        if (filmeDaLista.getTitulo().equalsIgnoreCase(tituloFilme)) {
             return filmeDaLista;  //se existir retorna o filme
         }
         
@@ -76,5 +82,103 @@ public class RepositorioFilmes implements Persistencia{
             f.setGenero(upd.getGenero()); //então usamos o modificador set copiando os dados encontrados no upd get
             f.setNota(upd.getNota());//modificamos o set copiando os dados encontrados no upd get
         }
+    }
+
+ // FILTROS (streams + lambda)
+ // Streams é uma função curta e sem nome. No Java, é representada pelo operador de seta ->. Exemplo: (x) -> x * 2. 
+ // Lambdas são funções anônimas (sem nome), passadas como argumentos para essas operações. É um bloco de código super curto que faz uma tarefa específica sem precisar de um nome.
+
+    // Filtra filmes por gênero (ignora maiúsculas/minúsculas e espaços extras)
+    public List<Filme> filtrarPorGenero(String genero) {
+        return listaFilmes.stream()
+                .filter(f -> f.getGenero().trim().equalsIgnoreCase(genero.trim()))
+                .collect(Collectors.toList());
+    }
+
+    // Filtra filmes lançados a partir de um determinado ano (inclusive)
+    public List<Filme> filtrarPorAnoAPartirDe(int ano) {
+        return listaFilmes.stream()
+                .filter(f -> f.getAnoLancamento() >= ano)
+                .collect(Collectors.toList());
+    }
+
+    // Filtra filmes com nota acima da média geral de todos os filmes cadastrados
+    public List<Filme> filtrarNotaAcimaDaMedia() {
+        double media = calcularMediaNotaGeral();
+        return listaFilmes.stream()
+                .filter(f -> f.getNota() > media)
+                .collect(Collectors.toList());
+    }
+
+    // Filtro combinado: gênero (opcional), ano mínimo (opcional) e nota mínima (opcional)
+    // Passe null/valor-sentinela para ignorar um critério específico.
+    public List<Filme> filtrar(String genero, Integer anoMinimo, Double notaMinima) {
+        return listaFilmes.stream()
+                .filter(f -> genero == null || genero.isBlank()
+                        || f.getGenero().trim().equalsIgnoreCase(genero.trim()))
+                .filter(f -> anoMinimo == null || f.getAnoLancamento() >= anoMinimo)
+                .filter(f -> notaMinima == null || f.getNota() >= notaMinima)
+                .collect(Collectors.toList());
+    }
+
+    // ESTATÍSTICAS (streams + collectors)
+    // Stream é um canal que transporta e processa dados sequencialmente sem modificar a coleção original.
+    // Collectors são operações finais que agrupam, somam ou convertem os dados desse fluxo em um resultado útil (como listas ou estatísticas).
+
+    // Média geral de notas de todos os filmes cadastrados
+    public double calcularMediaNotaGeral() {
+        return listaFilmes.stream()
+                .mapToDouble(Filme::getNota)
+                .average()
+                .orElse(0.0);
+    }
+
+    // Média de duração de todos os filmes cadastrados
+    public double calcularDuracaoMedia() {
+        return listaFilmes.stream()
+                .mapToInt(Filme::getDuracao)
+                .average()
+                .orElse(0.0);
+    }
+
+    // Média de notas agrupada por gênero (ex: {"Terror"=3.6, "Romance"=4.4, ...})
+    public Map<String, Double> calcularMediaNotaPorGenero() {
+        return listaFilmes.stream()
+                .collect(Collectors.groupingBy(
+                        f -> f.getGenero().trim(),
+                        Collectors.averagingDouble(Filme::getNota)
+                ));
+    }
+
+    // Contagem de filmes por gênero (ex: {"Terror"=1, "Romance"=1, ...})
+    public Map<String, Long> contarFilmesPorGenero() {
+        return listaFilmes.stream()
+                .collect(Collectors.groupingBy(
+                        f -> f.getGenero().trim(),
+                        Collectors.counting()
+                ));
+    }
+
+    // Duração média por gênero
+    public Map<String, Double> calcularDuracaoMediaPorGenero() {
+        return listaFilmes.stream()
+                .collect(Collectors.groupingBy(
+                        f -> f.getGenero().trim(),
+                        Collectors.averagingInt(Filme::getDuracao)
+                ));
+    }
+
+    // Filme com a maior nota cadastrada
+    public Filme filmeComMaiorNota() {
+        return listaFilmes.stream()
+                .max(Comparator.comparingDouble(Filme::getNota))
+                .orElse(null);
+    }
+
+    // Filme com a menor nota cadastrada
+    public Filme filmeComMenorNota() {
+        return listaFilmes.stream()
+                .min(Comparator.comparingDouble(Filme::getNota))
+                .orElse(null);
     }
 }
