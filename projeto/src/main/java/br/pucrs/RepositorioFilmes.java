@@ -49,7 +49,7 @@ public class RepositorioFilmes implements Persistencia{
         //percorre toda lista e verifica se existe o titulo que estou procurando
         for (Filme filmeDaLista : listaFilmes) {
 
-        if (filmeDaLista.getTitulo() == tituloFilme) {
+        if (filmeDaLista.getTitulo().equalsIgnoreCase(tituloFilme)) {
             return filmeDaLista;  //se existir retorna o filme
         }
         
