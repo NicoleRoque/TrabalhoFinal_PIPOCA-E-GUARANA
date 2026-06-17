@@ -10,3 +10,4 @@ mvn clean install
 mvn spring-boot:run
 
 ```
+## como baixar o java 21
