@@ -7,10 +7,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
-@Route("home")
+@Route("")
 public class MainView extends VerticalLayout {
     public MainView() {
-        Button sayHelloButton = new Button("Say hello");
+        Button sayHelloButton = new Button("Boas vindas");
        sayHelloButton.addClickListener(e -> {
              Notification.show("Bem Vindo(a)!");
        });
