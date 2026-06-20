@@ -198,6 +198,7 @@ public class TelaCadastroFilmes extends VerticalLayout { //declaração da class
         duracao.setValue(String.valueOf(filme.getDuracao())); //converte o int para string 
         anoLancamento.setValue(String.valueOf(filme.getAnoLancamento())); //converte o int para string
         genero.setValue(filme.getGenero());
+        
     }
 
     // Habilitar/desabilitar os campos do formulário
