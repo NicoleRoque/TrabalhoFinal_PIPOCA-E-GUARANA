@@ -13,6 +13,7 @@ public class MainView extends VerticalLayout {
         Button sayHelloButton = new Button("Boas vindas");
        sayHelloButton.addClickListener(e -> {
              Notification.show("Bem Vindo(a)!");
+             Notification.show("Clique em 'Ir para a tela de cadastro' para continuar");
        });
        add(sayHelloButton);
 
