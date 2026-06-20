@@ -128,7 +128,7 @@ public class RepositorioFilmes implements Persistencia{
     // Média geral de notas de todos os filmes cadastrados
     public double calcularMediaNotaGeral() {
         return listaFilmes.stream()
-                .mapToDouble(Filme::getNota)
+                .mapToDouble(Filme::getNota)// (Filme::getNota) = atalho para chamar um método sem escrever uma lambda completa.
                 .average()
                 .orElse(0.0);
     }
@@ -145,8 +145,8 @@ public class RepositorioFilmes implements Persistencia{
     public Map<String, Double> calcularMediaNotaPorGenero() {
         return listaFilmes.stream()
                 .collect(Collectors.groupingBy(
-                        f -> f.getGenero().trim(),
-                        Collectors.averagingDouble(Filme::getNota)
+                        f -> f.getGenero().trim(),// f -> f.getGenero().trim() = Chama método + faz algo a mais, por isso não podemos usar a referência de método. Temos que escrever a lambda completa.
+                        Collectors.averagingDouble(Filme::getNota)// Filme::getNota = Só chama um método, por isso podemos usar a referência de método.
                 ));
     }
 

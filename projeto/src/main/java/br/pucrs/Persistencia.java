@@ -15,4 +15,6 @@ public interface Persistencia {
 
     public void limparLista();
 
+    void update(int id, Filme upd);
+
 }

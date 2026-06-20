@@ -129,8 +129,14 @@ public class TelaRelatorioFilmes extends VerticalLayout {
     private void aplicarFiltros() {
         // Pega o gênero escolhido no ComboBox. Se o usuário não escolheu nada, getValue() retorna null
         String genero = filtroGenero.getValue();
-        // Pega o valor digitado no campo de ano. getValue() de um NumberField retorna um Double (ou null se vazio), então convertemos para Integer só se não for null (evita erro de "null.intValue()")
-        Integer ano = filtroAnoMinimo.getValue() != null ? filtroAnoMinimo.getValue().intValue() : null;
+        // NumberField sempre retorna Double, mas filtrar() espera Integer.
+        // O if verifica se o campo não está vazio antes de converter, evitando NullPointerException
+        Integer ano;
+        if (filtroAnoMinimo.getValue() != null) {
+            ano = filtroAnoMinimo.getValue().intValue();// converte Double para Integer
+        } else {
+            ano = null; // campo vazio = sem filtro de ano
+        }
         // Pega o valor digitado no campo de nota mínima (já é Double, então não precisa de conversão)
         Double nota = filtroNotaMinima.getValue();
 
@@ -172,10 +178,10 @@ public class TelaRelatorioFilmes extends VerticalLayout {
         Filme maiorNota = cadFilmes.filmeComMaiorNota();
         Filme menorNota = cadFilmes.filmeComMenorNota();
 
-        // Adiciona um texto (H3) mostrando a nota média geral, formatada com duas casas decimais (%.2f)
-        areaEstatisticas.add(new H3(String.format("Nota média geral: %.2f", mediaGeral)));
+        // Adiciona um texto (H3) mostrando a nota média geral
+        areaEstatisticas.add(new H3("Nota média geral: " + mediaGeral));
         // Mesma coisa, mas para a duração média geral
-        areaEstatisticas.add(new H3(String.format("Duração média geral: %.2f", duracaoMedia)));
+        areaEstatisticas.add(new H3("Duração média geral: " + duracaoMedia));
 
         // Se existir um filme com maior nota (a lista não está vazia), mostra o título dele 
         // (.trim() remove espaços extras no início/fim do título, já que no cadastro original os títulos vêm com espaços) e a nota
@@ -189,21 +195,23 @@ public class TelaRelatorioFilmes extends VerticalLayout {
                     + " (" + menorNota.getNota() + ")"));
         }
 
-        // Adiciona um subtítulo "Por gênero:" antes de listar os detalhes
-        areaEstatisticas.add(new H3("Por gênero:"));
-        // Percorre cada gênero que existe no Map de contagem (ex: "Terror","Romance", "Drama", "Ação"). Para cada gênero, monta uma linha de
-        // texto juntando: nome do gênero, quantos filmes daquele gênero existem, a nota média do gênero e a duração média do gênero
+       areaEstatisticas.add(new H3("Por gênero:"));
+
+        // keySet() retorna todos os gêneros cadastrados no Map (ex: "Terror", "Romance", "Drama", "Ação")
+        // o for percorre cada um desses gêneros, um por vez
         for (String genero : contagemPorGenero.keySet()) {
-            String linha = String.format(
-                    "%s — %d filme(s) | nota média: %.2f | duração média: %.2f",
-                    genero,
-                    contagemPorGenero.get(genero),
-                    // getOrDefault evita erro caso por algum motivo o gênero não exista no Map de médias (na prática isso não deveria acontecer, mas é uma proteção extra)
-                    mediaPorGenero.getOrDefault(genero, 0.0),
-                    duracaoMediaPorGenero.getOrDefault(genero, 0.0)
-            );
-            // Adiciona essa linha como um parágrafo dentro da área de estatísticas
-            areaEstatisticas.add(new com.vaadin.flow.component.html.Paragraph(linha));
-        }
+
+        // monta cada parte da linha separadamente para ficar mais fácil de ler
+        String quantidade = contagemPorGenero.get(genero) + " filme(s)";
+        String nota = mediaPorGenero.getOrDefault(genero, 0.0) + " nota média";
+        String duracao = duracaoMediaPorGenero.getOrDefault(genero, 0.0) + " duração média";
+
+        // junta tudo em uma linha só
+        // ex: "Terror — 1 filme(s) | 3.6 nota média | 1.0 duração média"
+        String linha = genero + " — " + quantidade + " | " + nota + " | " + duracao;
+
+        // Transforma a linha de texto em um parágrafo visual e adiciona na tela
+        areaEstatisticas.add(new com.vaadin.flow.component.html.Paragraph(linha));
+       }
     }
 }
